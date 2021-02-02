@@ -1,3 +1,6 @@
+
+CXX := g++-10
+
 ###################################################################################################
 
 .PHONY:	r d p sh cr cd cp csh lr ld lp lsh config all install install-headers install-lib\
@@ -60,8 +63,10 @@ SOMINOR=1
 SORELEASE?=.0#   Declare empty to leave out from library file name.
 
 MINISAT_CXXFLAGS = -I. -D __STDC_LIMIT_MACROS -D __STDC_FORMAT_MACROS -Wall -Wno-parentheses -Wextra
+MINISAT_CXXFLAGS += -Wno-unused-parameter -Wno-class-memaccess -Wno-unused-but-set-variable
 MINISAT_LDFLAGS  = -Wall -lz
 
+VERB=1
 ECHO=@echo
 ifeq ($(VERB),)
 VERB=@
@@ -96,9 +101,9 @@ $(BUILD_DIR)/dynamic/%.o:			MINISAT_CXXFLAGS +=$(MINISAT_REL) $(MINISAT_FPIC)
 
 ## Build-type Link-flags:
 $(BUILD_DIR)/profile/bin/$(MINISAT):		MINISAT_LDFLAGS += -pg
-$(BUILD_DIR)/release/bin/$(MINISAT):		MINISAT_LDFLAGS += --static $(MINISAT_RELSYM)
+$(BUILD_DIR)/release/bin/$(MINISAT):		MINISAT_LDFLAGS += $(MINISAT_RELSYM)
 $(BUILD_DIR)/profile/bin/$(MINISAT_CORE):	MINISAT_LDFLAGS += -pg
-$(BUILD_DIR)/release/bin/$(MINISAT_CORE):	MINISAT_LDFLAGS += --static $(MINISAT_RELSYM)
+$(BUILD_DIR)/release/bin/$(MINISAT_CORE):	MINISAT_LDFLAGS += $(MINISAT_RELSYM)
 
 ## Executable dependencies
 $(BUILD_DIR)/release/bin/$(MINISAT):	 	$(BUILD_DIR)/release/minisat/simp/Main.o $(BUILD_DIR)/release/lib/$(MINISAT_SLIB)
