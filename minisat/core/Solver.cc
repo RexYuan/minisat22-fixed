@@ -1046,7 +1046,7 @@ void Solver::relocAll(ClauseAllocator& to)
     for (i = j = 0; i < clauses.size(); i++)
         if (!isRemoved(clauses[i])){
             ca.reloc(clauses[i], to);
-            clauses[j++] = clauses[i];
+            clauses[j++] = clauses[i]; // move the undeleted clauses up front
         }
     clauses.shrink(i - j);
 }

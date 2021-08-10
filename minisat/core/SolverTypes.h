@@ -87,7 +87,7 @@ class LSet : public IntSet<Lit, MkIndexLit>{};
 // Lifted booleans:
 //
 // NOTE: this implementation is optimized for the case when comparisons between values are mostly
-//       between one variable and one constant. Some care had to be taken to make sure that gcc 
+//       between one variable and one constant. Some care had to be taken to make sure that gcc
 //       does enough constant propagation to produce sensible code, and this appears to be somewhat
 //       fragile unfortunately.
 
@@ -142,9 +142,15 @@ class Clause {
         unsigned mark      : 2;
         unsigned learnt    : 1;
         unsigned has_extra : 1;
-        unsigned reloced   : 1;
-        unsigned size      : 27; }                        header;
-    union { Lit lit; float act; uint32_t abs; CRef rel; } data[0];
+        unsigned reloced   : 1; // if this is already reloc-ed to somewhere else
+        unsigned size      : 27; }
+        header;
+    // all these types are asserted to be 32 bits
+    union { Lit lit;
+            float act;
+            uint32_t abs;
+            CRef rel; } // where this is reloc-ed to in the new ca
+            data[0]; // variable-length object by gcc extension
 
     friend class ClauseAllocator;
 
@@ -273,17 +279,17 @@ class ClauseAllocator
     void free(CRef cid)
     {
         Clause& c = operator[](cid);
-        ra.free(clauseWord32Size(c.size(), c.has_extra()));
+        ra.free(clauseWord32Size(c.size(), c.has_extra())); // tell ra this is on longer in use
     }
 
     void reloc(CRef& cr, ClauseAllocator& to)
     {
         Clause& c = operator[](cr);
-        
+
         if (c.reloced()) { cr = c.relocation(); return; }
-        
-        cr = to.alloc(c);
-        c.relocate(cr);
+
+        cr = to.alloc(c); // "copy" construct c in to and point cr to it
+        c.relocate(cr); // mark that c is already reloc-ed to cr
     }
 };
 
