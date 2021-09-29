@@ -712,6 +712,7 @@ lbool Solver::search(int nof_conflicts)
         if (confl != CRef_Undef){
             // CONFLICT
             conflicts++; conflictC++;
+             // conflict happened before any top-level assignment; unsat
             if (decisionLevel() == 0) return l_False;
 
             learnt_clause.clear();
@@ -1027,7 +1028,7 @@ void Solver::relocAll(ClauseAllocator& to)
         // 'dangling' reasons here. It is safe and does not hurt.
         if (reason(v) != CRef_Undef && (ca[reason(v)].reloced() || locked(ca[reason(v)]))){
             assert(!isRemoved(reason(v)));
-            ca.reloc(vardata[v].reason, to);
+            ca.reloc(vardata[v].reason, to); // reloc whatever clause that causes v's reason(?)
         }
     }
 
